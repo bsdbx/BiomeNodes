@@ -27,9 +27,9 @@ class AutoRegisterOperators():
         """
 
         for c in self.operators:
-            if not hasattr(c, "bl_description") and not hasattr(c, "description"):
+            if not hasattr(c, "bl_description") and not hasattr(c, "description"): # If operator is missing description
                 print(f"{self.bcolors.WARNING}Warning:", "missing description in", c.__name__, self.bcolors.ENDC)
-            if not c.__name__.startswith("OT"):
+            if not c.__name__.startswith("OT"): # If operator doesn't start with OT
                 print(f"{self.bcolors.WARNING}Warning:", c.__name__, "does not contain 'OT' with prefix", self.bcolors.ENDC)
 
     
@@ -39,6 +39,7 @@ class AutoRegisterOperators():
         """
 
         for c in self.operators:
+            # bl_idname attribute generation
             if not hasattr(c, "bl_idname"):
                 no_ot = c.__name__.replace('OT_', '') # Removing OT suffix
 
@@ -55,16 +56,18 @@ class AutoRegisterOperators():
 
                 setattr(c, "bl_idname", ".".join([id_attr, id_end]))
 
+            # bl_label attribute generation
             if not hasattr(c, "bl_label"):
                 setattr(c, "bl_label", label)
 
-            if getattr(c, "generate_bl_options", True) and not hasattr(c, "bl_options"):
-                if hasattr(c, "bl_options_options"):
-                    if (blo := getattr(c, "bl_options_options")).issubset({'REGISTER', 'UNDO', 'UNDO_GROUPED', 'BLOCKING', 'MACRO', 'GRAB_CURSOR', 'GRAB_CURSOR_X', 'GRAB_CURSOR_Y', 'DEPENDS_ON_CURSOR', 'PRESET', 'INTERNAL'}):
+            # bl_options attribute generation
+            if getattr(c, "generate_bl_options", True) and not hasattr(c, "bl_options"): # If function is not decorated
+                if hasattr(c, "bl_options_options"): # If function is decorated and has parameters
+                    if (blo := getattr(c, "bl_options_options")).issubset({'REGISTER', 'UNDO', 'UNDO_GROUPED', 'BLOCKING', 'MACRO', 'GRAB_CURSOR', 'GRAB_CURSOR_X', 'GRAB_CURSOR_Y', 'DEPENDS_ON_CURSOR', 'PRESET', 'INTERNAL'}): # If bl_options parameter is not valid
                         setattr(c, "bl_options", blo)
-                    else:
+                    else: # Do not generate and print warning
                         print(f"{self.bcolors.WARNING}Warning: not valid 'bl_options' argument in", c.__name__, self.bcolors.ENDC)
-                else:
+                else: # If no parameters - generate default bl_options attribute
                     setattr(c, "bl_options", {'REGISTER', 'UNDO'})
 
 
@@ -95,6 +98,7 @@ class AutoRegisterOperators():
         self.warnings()
         self.generate_attributes()
 
+        # Register all classes
         for c in self.operators:
             register_class(c)
             print('Registered class:', c.__name__)
@@ -104,6 +108,7 @@ class AutoRegisterOperators():
 
         from bpy.utils import unregister_class
         
+        # Unregister all classes
         for c in reversed(self.operators):
             unregister_class(c)
             print('Unregistered class:', c.__name__)
