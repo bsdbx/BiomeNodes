@@ -34,7 +34,7 @@ class AutoRegisterOperators():
 
     
     def generate_attributes(self) -> None:
-        """Called on register.\n
+        """Called on register,\n
         Generates bl_idname, bl_label and bl_options attributes.
         """
 
