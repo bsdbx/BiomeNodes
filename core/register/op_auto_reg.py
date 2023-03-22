@@ -1,77 +1,105 @@
-import bpy.types as bt
+"""'op_auto_reg' is a Python module for auto registration of Operator Class,\n
+It provides user with handy 'AutoRegisterOperators' Class.
+"""
 
-import sys, inspect, re
-from typing import Type, Callable, List
+from typing import Type, Callable, List, Set
+from dataclasses import dataclass
+
+import sys
+import inspect
+import re
+
+import bpy.types as bt
+from bpy.utils import register_class, unregister_class
+
 
 class AutoRegisterOperators():
-    def __init__(self, module_name: str) -> None:
-        self.operators: Type[bt.Operator]
-        self.label:     str
+    """AutoRegisterOperators class provides functional to automatically register Operator classes,\n
+    It automatically generates 'bl_idname', 'bl_description' and optionally 'bl_options' using decorator,\n
+    It also warns user about not missing class description or proper Class naming convention.
+    """
 
-        self.get_classes: Callable[[str, bt.bpy_struct], List[bt.bpy_struct]] = lambda module_name, type: list(filter(lambda obj: 
-                                                                                                                            inspect.isclass(obj) and issubclass(obj, type), 
-                                                                                                                            sys.modules[module_name].__dict__.values()))
-        
+    def __init__(self,
+                 module_name: str) -> None:
+        self.operators: List[Type[bt.bpy_struct]]
+        self.get_classes: Callable[[str, Type[bt.bpy_struct]], List[Type[bt.bpy_struct]]] = lambda module_name, type: list(filter(lambda obj: inspect.isclass(obj)
+                                                                                                                                  and issubclass(obj, type),
+                                                                                                                                  sys.modules[module_name].__dict__.values()))
+
         self.operators = self.get_classes(module_name, bt.Operator)
 
-
-    class bcolors:
+    @dataclass(frozen=True)
+    class BColors:
+        """Constant warning variables for colored warning output,\n
+        see this thread: https://stackoverflow.com/questions/287871/how-do-i-print-colored-text-to-the-terminal?page=1&tab=scoredesc#tab-top 
+        """
         WARNING = "\033[93m"
-        ENDC    = "\033[0m"
+        ENDC = "\033[0m"
 
-    
     def warnings(self) -> None:
         """Called on register,\n
         Warns about missing description(bl_description and staticmethod one),\n
-        Warns about missing OT prefix(see class naming convention: https://b3d.interplanety.org/en/class-naming-conventions-in-blender-2-8-python-api/).
+        Warns about missing OT prefix(see Class naming convention: https://b3d.interplanety.org/en/class-naming-conventions-in-blender-2-8-python-api/).
         """
 
-        for c in self.operators:
-            if not hasattr(c, "bl_description") and not hasattr(c, "description"): # If operator is missing description
-                print(f"{self.bcolors.WARNING}Warning:", "missing description in", c.__name__, self.bcolors.ENDC)
-            if not c.__name__.startswith("OT"): # If operator doesn't start with OT
-                print(f"{self.bcolors.WARNING}Warning:", c.__name__, "does not contain 'OT' with prefix", self.bcolors.ENDC)
+        for class_obj in self.operators:
+            # If operator is missing description
+            if not hasattr(class_obj, "bl_description") and not hasattr(class_obj, "description"):
+                print(f"{self.BColors.WARNING}Warning:",
+                      "missing description in", class_obj.__name__, self.BColors.ENDC)
+            # If operator doesn't start with OT
+            if not class_obj.__name__.startswith("OT"):
+                print(f"{self.BColors.WARNING}Warning:", class_obj.__name__,
+                      "does not contain 'OT' with prefix", self.BColors.ENDC)
 
-    
     def generate_attributes(self) -> None:
         """Called on register,\n
         Generates bl_idname, bl_label and bl_options attributes.
         """
 
-        for c in self.operators:
+        for class_obj in self.operators:
             # bl_idname attribute generation
-            if not hasattr(c, "bl_idname"):
-                no_ot = c.__name__.replace('OT_', '') # Removing OT suffix
+            if not hasattr(class_obj, "bl_idname"):
+                no_ot = class_obj.__name__.replace(
+                    'OT_', '')  # Removing OT suffix
 
                 # Idname
                 id_end_index = no_ot.find('_')
-                id_attr = no_ot[0 : id_end_index].lower()
+                id_attr = no_ot[0:id_end_index].lower()
 
-                id_end = no_ot[id_end_index + 1 : len(no_ot)]
+                id_end = no_ot[id_end_index + 1:len(no_ot)]
 
                 # Label
-                label = ' '.join(re.sub('([A-Z][a-z]+)', r' \1', re.sub('([A-Z]+)', r' \1', id_end)).split()) # Splitting PascalCase with spaces(e.g [Pascal, Case, Some, Other, Text])
+                # Splitting PascalCase with spaces(e.g [Pascal, Case, Some, Other, Text])
+                label = ' '.join(
+                    re.sub("([A-Z][a-z]+)", r" \1", re.sub("([A-Z]+)", r" \1", id_end)).split())
 
-                id_end = re.compile(r'(?<!^)(?=[A-Z])').sub('_', id_end).lower() # PascalCase to camel_case
+                # PascalCase to camel_case
+                id_end = re.compile(
+                    r"(?<!^)(?=[A-Z])").sub("_", id_end).lower()
 
-                setattr(c, "bl_idname", ".".join([id_attr, id_end]))
+                setattr(class_obj, "bl_idname", ".".join([id_attr, id_end]))
 
             # bl_label attribute generation
-            if not hasattr(c, "bl_label"):
-                setattr(c, "bl_label", label)
+            if not hasattr(class_obj, "bl_label"):
+                setattr(class_obj, "bl_label", label)
 
             # bl_options attribute generation
-            if getattr(c, "generate_bl_options", True) and not hasattr(c, "bl_options"): # If function is not decorated
-                if hasattr(c, "bl_options_options"): # If function is decorated and has parameters
-                    if (blo := getattr(c, "bl_options_options")).issubset({'REGISTER', 'UNDO', 'UNDO_GROUPED', 'BLOCKING', 'MACRO', 'GRAB_CURSOR', 'GRAB_CURSOR_X', 'GRAB_CURSOR_Y', 'DEPENDS_ON_CURSOR', 'PRESET', 'INTERNAL'}): # If bl_options parameter is not valid
-                        setattr(c, "bl_options", blo)
-                    else: # Do not generate and print warning
-                        print(f"{self.bcolors.WARNING}Warning: not valid 'bl_options' argument in", c.__name__, self.bcolors.ENDC)
-                else: # If no parameters - generate default bl_options attribute
-                    setattr(c, "bl_options", {'REGISTER', 'UNDO'})
+            # If function is not decorated
+            if getattr(class_obj, "generate_bl_options", True) and not hasattr(class_obj, "bl_options"):
+                # If function is decorated and has parameters
+                if hasattr(class_obj, "bl_options_options"):
+                    # If bl_options parameter is not valid
+                    if (blo := getattr(class_obj, "bl_options_options")).issubset({'REGISTER', 'UNDO', 'UNDO_GROUPED', 'BLOCKING', 'MACRO', 'GRAB_CURSOR', 'GRAB_CURSOR_X', 'GRAB_CURSOR_Y', 'DEPENDS_ON_CURSOR', 'PRESET', 'INTERNAL'}):
+                        setattr(class_obj, "bl_options", blo)
+                    else:  # Do not generate and print warning
+                        print(f"{self.BColors.WARNING}Warning: not valid 'bl_options' argument in",
+                              class_obj.__name__, self.BColors.ENDC)
+                else:  # If no parameters - generate default bl_options attribute
+                    setattr(class_obj, "bl_options", {'REGISTER', 'UNDO'})
 
-
-    def not_generate_bl_options(options: set[str] = {}) -> Type[bt.Operator]:
+    @staticmethod
+    def not_generate_bl_options(options: Set[str] | None = None) -> Callable[[Type[bt.Operator]], Type[bt.Operator]]:
         """Decorates  'bpy.types.Operator' class,\n
         If class is decorated and 'options' argument is empty set - bl_options won't be generated,\n
         If class is not decorated - bl_options will be generated,\n
@@ -79,36 +107,31 @@ class AutoRegisterOperators():
         """
 
         def decorator(cls: Type[bt.Operator]) -> Type[bt.Operator]:
-            if options == {}:
+            if options == set() or options == None:
                 cls.generate_bl_options = False
             else:
                 cls.generate_bl_options = True
-                cls.bl_options_options  = options
+                cls.bl_options_options = options
             return cls
-        return decorator     
-                                                                                                                        
-        
+        return decorator
+
     def auto_register(self) -> None:
         """Automatically registers classes from input module,\n
         Outputs warnings and generates attributes.
         """
 
-        from bpy.utils import register_class
-
         self.warnings()
         self.generate_attributes()
 
         # Register all classes
-        for c in self.operators:
-            register_class(c)
-            print('Registered class:', c.__name__)
+        for class_obj in self.operators:
+            register_class(class_obj)
+            print('Registered class:', class_obj.__name__)
 
     def auto_unregister(self) -> None:
         """Automatically unregisters classes from input module"""
 
-        from bpy.utils import unregister_class
-        
         # Unregister all classes
-        for c in reversed(self.operators):
-            unregister_class(c)
-            print('Unregistered class:', c.__name__)
+        for class_obj in reversed(self.operators):
+            unregister_class(class_obj)
+            print('Unregistered class:', class_obj.__name__)
