@@ -11,23 +11,26 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from .core.register import op_auto_reg
+from .core import register as registration_system
+#from .core import test
+
+#import bpy
 
 bl_info = {
     "name" : "BiomeNodes",
-    "author" : "BiomeNodes",
-    "description" : "",
-    "blender" : (3, 5, 0),
-    "version" : (0, 0, 2),
-    "location" : "",
+    "author" : "bsdbx, forck",
+    "description" : "Parametric node-based system for procedural biome generation",
+    "blender" : (3, 4, 1),
+    "version" : (0, 0, 1),
+    "location" : "Node Editor",
     "warning" : "",
-    "category" : "Generic"
+    "category" : "Node"
 }
 
-ar_op = op_auto_reg.AutoRegisterOperators(op_auto_reg.__name__)
-
 def register() -> None:
-    ar_op.auto_register()
+    registration_system.reg()
+    #bpy.utils.register_class(test.PT_something) 
 
 def unregister() -> None:
-    ar_op.auto_unregister()
+    #bpy.utils.unregister_class(test.PT_something)
+    registration_system.unreg()
