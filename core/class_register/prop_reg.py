@@ -36,7 +36,7 @@ class RegisterPropertyGroups():
 
     def assign_attributes(self) -> None:
         """Called on register,\n
-        Automatically sets an attribute(decorator property) to a `bpy_struct` object(decorator property).
+        Automatically sets an attribute(decorator property) to a `bpy_struct` object(decorator property),\n
 
         :rtype: `None`,\n
         :return: Nothing.
@@ -51,7 +51,7 @@ class RegisterPropertyGroups():
 
     def register(self) -> None:
         """Automatically registers Classes from input module,\n 
-        Outputs warnings.
+        Outputs warnings,\n
 
         :rtype: `None`,\n
         :return: Nothing.
@@ -68,7 +68,7 @@ class RegisterPropertyGroups():
         self.assign_attributes()
 
     def unregister(self) -> None:
-        """Automatically unregisters Classes from input module.
+        """Automatically unregisters Classes from input module,\n
 
         :rtype: `None`,\n
         :return: Nothing.

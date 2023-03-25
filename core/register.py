@@ -3,7 +3,7 @@
 from ..util.core_utils import import_all_modules
 
 from .class_register.prop_reg import RegisterPropertyGroups as RPG
-from .class_register.op_auto_reg import RegisterOperators as RO
+from .class_register.operator_reg import RegisterOperators as RO
 
 modules = import_all_modules()
 
@@ -26,7 +26,7 @@ def reg() -> None:
 
 def unreg() -> None:
     """1. Unregisters PropertyGroup Classes,\n
-    2. Unregisters Operator Classes.
+    2. Unregisters Operator Classes,\n
     
     :rtype: None,\n
     :return: Nothing.

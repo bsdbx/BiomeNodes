@@ -12,9 +12,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 from .core import register as registration_system
-#from .core import test
+from .core import test
 
-#import bpy
+import bpy
 
 bl_info = {
     "name" : "BiomeNodes",
@@ -29,8 +29,8 @@ bl_info = {
 
 def register() -> None:
     registration_system.reg()
-    #bpy.utils.register_class(test.PT_something) 
+    bpy.utils.register_class(test.PT_something) 
 
 def unregister() -> None:
-    #bpy.utils.unregister_class(test.PT_something)
+    bpy.utils.unregister_class(test.PT_something)
     registration_system.unreg()
