@@ -4,10 +4,9 @@
 </p>
 
 <p align="center">
-    <img src = https://img.shields.io/github/issues-raw/bsdbx/BiomeNodes?style=for-the-badge> 
-    <img src = https://img.shields.io/github/issues-pr-raw/bsdbx/BiomeNodes?style=for-the-badge> 
-    <img src = https://img.shields.io/github/issues-closed-raw/bsdbx/BiomeNodes?style=for-the-badge>
-    <img src = https://img.shields.io/github/issues-pr-closed-raw/bsdbx/BiomeNodes?style=for-the-badge>
-    <img src = https://img.shields.io/github/issues-pr-closed-raw/bsdbx/BiomeNodes?style=for-the-badge>
-    <img src = "https://img.shields.io/github/contributors/bsdbx/BiomeNodes?color=succes&style=for-the-badge">
+    <img src = https://img.shields.io/github/issues-raw/bsdbx/BiomeNodes?color=%23398378&style=for-the-badge>
+    <img src = https://img.shields.io/github/issues-pr-raw/bsdbx/BiomeNodes?color=%23398378&style=for-the-badge>
+    <img src = https://img.shields.io/github/issues-closed-raw/bsdbx/BiomeNodes?color=%23398378&style=for-the-badge>
+    <img src =https://img.shields.io/github/issues-pr-closed-raw/bsdbx/BiomeNodes?color=%23398378&style=for-the-badge>
+    <img src = https://img.shields.io/github/contributors/bsdbx/BiomeNodes?color=%23398378&style=for-the-badge>
 </p>
