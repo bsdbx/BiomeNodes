@@ -145,7 +145,7 @@ If you engage in behavior that violates our code of conduct, we may take action,
 ### Reporting and Enforcement
 
 If you witness or experience any behavior that violates our code of conduct, please report it to [insert contact information for reporting violations]. We take all reports seriously and will investigate them promptly and thoroughly. We are committed to protecting the privacy and confidentiality of all parties involved in any report.
-
+cle
 ### Attribution
 
 This Code of Conduct is adapted from the Contributor Covenant, version 2.1, available at https://www.contributor-covenant.org/version/2/1/code_of_conduct.html.
@@ -153,4 +153,5 @@ This Code of Conduct is adapted from the Contributor Covenant, version 2.1, avai
 # Additionally 
 
 Biome Nodes versioning is based on [SemVer](https://semver.org/) versioning scheme. Version change **has to be** reviewed.
-For any sort of regarding contributing consider directly messaging me: rakbogdan56@gmail.com or through [discussions](https://github.com/bsdbx/BiomeNodes/discussions).
+
+For any sort of questions regarding contributing consider directly messaging me: rakbogdan56@gmail.com or through [discussions](https://github.com/bsdbx/BiomeNodes/discussions).
