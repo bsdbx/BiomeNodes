@@ -1,50 +1,50 @@
-from typing import Type, Callable, Set
+# noqa: D100
+from collections.abc import Callable
 
-import bpy.types as bt
+import bpy.types as bt  # noqa: WPS301
 
 
-def register_property_group(bpy_struct: Type[bt.bpy_struct],
-                            attribute: str) -> Callable[[Type[bt.PropertyGroup]], Type[bt.PropertyGroup]]:
-    """Decorates `bpy.types.PropertyGroup` Class,\n
-    If Class is decorated - it is going to be registered, otherwise - not(generated warning),\n
+def register_property_group(
+    bpy_struct: type[bt.bpy_struct],
+    attribute: str,
+) -> Callable[[type[bt.PropertyGroup]], type[bt.PropertyGroup]]:
+    """`register_property_group` decorator is used to decorate `PropertyGroup` Classes.
 
-    :param bpy_struct: Subclass of `bpy.types.bpy_struct`,\n
-    :type bpy_struct: `typing.Type[bpy.types.bpy_struct]`,\n
+    If Class is decorated - it is going to be registered, otherwise - not.
 
-    :param attribute: Name of property that is going to be setted to `bpy_struct` param,\n
-    :type attribute: `str`,\n
+    Args:
+        bpy_struct (type[bpy_struct]): Subclass of `bpy_struct` Class.
+        attribute: (type[PropertyGroup]): Name of attribute(Property Group).
 
-    :rtype: `typing.Callable[[typing.Type[bpy.types.PropertyGroup]], typing.Type[bpy.types.PropertyGroup]]`,\n
-    :return: Wrapper function.
+    Returns:
+        Callable[type[PropertyGroup], type[PropertyGroup]]: Wrapper function with generated attributes.
     """
 
-    def decorator(cls: Type[bt.PropertyGroup]) -> Type[bt.PropertyGroup]:
+    def decorator(cls: type[bt.PropertyGroup]) -> type[bt.PropertyGroup]:
         cls.property_group_type = bpy_struct
         cls.property_group_attribute = attribute
         return cls
-    
+
     return decorator
 
 
-def bl_options(options: Set[str] | None = None) -> Callable[[Type[bt.Operator]], Type[bt.Operator]]:
-    """Decorates  `bpy.types.Operator` Class,\n
-    If Class is decorated and 'options' argument is empty set - bl_options won't be generated,\n
-    If Class is not decorated - bl_options will be generated,\n
-    'options' parameter is optional, specifies custom set for bl_options generation,\n
+def bl_options(
+    options: set[str] | dict[str, None] | None = None,
+) -> Callable[[type[bt.Operator]], type[bt.Operator]]:
+    """`bl_options` decorator is used to decorate `Operator` Classes.
 
-    :param options: Set of `Operator Type Flag Items`: https://docs.blender.org/api/current/bpy_types_enum_items/operator_type_flag_items.html#rna-enum-operator-type-flag-items,\n
-    :type options: `typing.Optional[typing.Set[str]]`,\n
+    If Class is decorated and 'options' argument is empty set - `bl_options` won't be generated.
+    If Class is not decorated or no parameters are specified - `bl_options` will be generated.
 
-    :rtype: `typing.Callable[[typing.Type[bpy.types.Operator]], typing.Type[bpy.types.Operator]]`,\n
-    :return: Wrapper function.
+    Args:
+        options (set[str] | dict[str, None] | None): Set of `Operator Type Flag Items`.
+
+    Returns:
+        Callable[[type[Operator]], type[Operator]]: Wrapper function.
     """
 
-    def decorator(cls: Type[bt.Operator]) -> Type[bt.Operator]:
-        if options == set() or options is None:
-            cls.generate_bl_options = False
-        else:
-            cls.generate_bl_options = True
-            cls.bl_options_options = options
+    def decorator(cls: type[bt.Operator]) -> type[bt.Operator]:
+        cls.bl_options_options = options
         return cls
-    
+
     return decorator

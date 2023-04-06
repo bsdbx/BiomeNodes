@@ -144,7 +144,7 @@ If you engage in behavior that violates our code of conduct, we may take action,
 
 ### Reporting and Enforcement
 
-If you witness or experience any behavior that violates our code of conduct, please report it to [insert contact information for reporting violations]. We take all reports seriously and will investigate them promptly and thoroughly. We are committed to protecting the privacy and confidentiality of all parties involved in any report.
+If you witness or experience any behavior that violates our code of conduct, please report it to [insert contact information for reporting violations]. We take all reports seriously and will investigate them promptly and thoroughly. We are committed to protecting the privacy and confidentiality of all parties involved in any report. 
 cle
 ### Attribution
 

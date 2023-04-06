@@ -1,81 +1,94 @@
-from typing import List
+# noqa: D100
+import logging
 
-import bpy.types as bt
-import bpy.props as bp
-
+import bpy.props as bp  # noqa: WPS301
+import bpy.types as bt  # noqa: WPS301
 from bpy.utils import register_class, unregister_class
+from typing_extensions import Self
 
-from ...util.core_utils import get_classes, CONSTANTS
+from ...util.core_utils import CONSTANTS, get_classes
 
 
-class RegisterPropertyGroups():
-    """`RegisterPropertyGroups` provides functional to easily register `bpy.types.PropertyGroup` Classes,\n
-    It has a useful decorator to wrap `bpt.types.PropertyGroup` Classes where user can specify `bpy_struct` object and property attribute,\n
+class RegisterPropertyGroups():  # noqa: WPS306
+    """`RegisterPropertyGroups` provides functional to easily register `PropertyGroup` Classes.
 
-    :param modules: Name of the module for registrator to parse,\n
-    :type modules: `typing.List[str]`.
+    It has a useful decorator to wrap `PropertyGroup` Classes,
+    where user can specify `bpy_struct` object and property attribute.
+
+    Args:
+        modules (list[str]): list of names of modules to take in account when registering.
+        logger (Logger | None): Logger object to use for Info and Warnings output.
     """
 
-    def __init__(self,
-                 modules: List[str]) -> None:
+    def __init__(
+        self: Self,
+        modules: list[str],
+        logger: logging.Logger | None = None,
+    ) -> None:
+        if logger is None:
+            self.logger = logging.getLogger(__name__)
+        else:
+            self.logger = logger
+
         self.property_groups = [get_classes(mod, bt.PropertyGroup) for mod in modules]
+        self.constants = CONSTANTS()
 
-    def warnings(self) -> None:
-        """Called on register,\n
-        Warns about not decorated `bpy.types.PropertyGroup` Classes,\n
-
-        :rtype: `None`,\n
-        :return: Nothing.
-        """
-
+    def warnings(self: Self) -> None:
+        """`warnings` function is used to warn user about not decorated `PropertyGroup` Classes."""
         for list_of_pg in self.property_groups:
             for pr_group in list_of_pg:
-                if not hasattr(pr_group, "property_group_type") and not hasattr(pr_group, "property_group_attribute"):
-                    print(f"{CONSTANTS.BColors.WARNING}Warning:",
-                        "skipping registering", pr_group.__name__, "Class", CONSTANTS.BColors.ENDC)
+                property_group_type = getattr(pr_group, 'property_group_type', None)
+                property_group_attribute = getattr(pr_group, 'property_group_attribute', None)
 
-    def assign_attributes(self) -> None:
-        """Called on register,\n
-        Automatically sets an attribute(decorator property) to a `bpy_struct` object(decorator property),\n
+                if not all([property_group_type, property_group_attribute]):
+                    self.logger.warning('{warning}Skipping registering {class_name} Class.{endc}'.format(
+                        warning=self.constants.BColors.warning,
+                        class_name=pr_group.__name__,
+                        endc=self.constants.BColors.endc,
+                    ),
+                    )
 
-        :rtype: `None`,\n
-        :return: Nothing.
+    def assign_attributes(self: Self) -> None:
+        """`assign_attributes` is called on register.
+
+        Automatically sets an attribute(decorator property) to a `bpy_struct` object(decorator property).
         """
-
         for list_of_pg in self.property_groups:
             for pr_group in list_of_pg:
-                # If was decorated
-                if hasattr(pr_group, "property_group_type"):
-                    setattr(pr_group.property_group_type, str(
-                            pr_group.property_group_attribute), bp.PointerProperty(type=pr_group))
+                property_group_attribute = getattr(pr_group, 'property_group_attribute', None)
+                property_group_type = getattr(pr_group, 'property_group_type', None)
 
-    def register(self) -> None:
-        """Automatically registers Classes from input module,\n 
-        Outputs warnings,\n
+                if all([property_group_attribute, property_group_type]):
+                    setattr(
+                        pr_group.property_group_type,
+                        str(pr_group.property_group_attribute),
+                        bp.PointerProperty(type=pr_group),
+                    )
 
-        :rtype: `None`,\n
-        :return: Nothing.
-        """
-
+    def register(self: Self) -> None:
+        """`register` function automatically registers `PropertyGroups` Classes."""
         self.warnings()
 
-        # Firstly register, then assign attributes
         for list_of_pg in self.property_groups:
             for pr_group in list_of_pg:
                 register_class(pr_group)
-                print("Registered Class:", pr_group.__name__)
+                self.logger.info('{info}Registered Property Group: {class_name}.{endc}'.format(
+                    info=self.constants.BColors.info,
+                    class_name=pr_group.__name__,
+                    endc=self.constants.BColors.endc,
+                ),
+                )
 
         self.assign_attributes()
 
-    def unregister(self) -> None:
-        """Automatically unregisters Classes from input module,\n
-
-        :rtype: `None`,\n
-        :return: Nothing.
-        """
-
-        # Firstly unregister, then remove attributes
+    def unregister(self: Self) -> None:
+        """`unregister` function automatically unregisters `PropertyGroups` Classes."""
         for list_of_pg in self.property_groups:
             for pr_group in reversed(list_of_pg):
                 unregister_class(pr_group)
-                print("Unregistered Class:", pr_group.__name__)
+                self.logger.info('{info}Unregistered Property Group: {class_name}.{endc}'.format(
+                    info=self.constants.BColors.info,
+                    class_name=pr_group.__name__,
+                    endc=self.constants.BColors.endc,
+                ),
+                )

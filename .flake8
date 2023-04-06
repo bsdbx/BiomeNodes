@@ -1,0 +1,20 @@
+[flake8]
+max-line-length=120
+
+ignore= 
+    TC003,
+    H301,
+    D107,
+    PIE803,
+    WPS210,
+    WPS602,
+    WPS332,
+    WPS220,
+    WPS232,
+    WPS234,
+    WPS122,
+    WPS300,
+
+nested-classes-whitelist=
+    BColors,
+    Helpers,
